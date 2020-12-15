@@ -1,5 +1,5 @@
 // import model
-const { Project, User, Transaction } = require("../../models");
+const { Project, FileProject, Transaction } = require("../../models");
 // import module
 const Joi = require("joi");
 
@@ -46,6 +46,78 @@ exports.sendProject = async (req, res) => {
           transactionId,
         },
       },
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+// @desc Add File
+// @route Post api/v1/add-file/:id
+// @access USER
+exports.addFileProject = async (req, res) => {
+  try {
+    const { id: projectId } = req.params;
+    const file = req.files;
+    const project = await Project.findOne({ where: { id: projectId } });
+    if (!project) {
+      return handleNotFound(res, "project is not found");
+    }
+    await Promise.all(
+      file.map(async (image) => {
+        await FileProject.create({
+          projectId,
+          fileName: image.path,
+        });
+      })
+    );
+    const projectAfterAdd = await Project.findOne({
+      where: { id: projectId },
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: FileProject,
+        as: "file",
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      },
+    });
+
+    res.send({
+      status: responseSuccess,
+      message: "succesfully add project file",
+      data: { project: projectAfterAdd },
+    });
+
+    // FileProject
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+// project
+
+// @desc Get Project By Id
+// @route GET api/v1/project/:id
+// @access USER
+exports.getProjectById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const project = await Project.findOne({
+      where: { id },
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+      include: {
+        model: FileProject,
+        as: "file",
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      },
+    });
+    if (!project) {
+      handleNotFound(res, "project is not found");
+    }
+
+    res.send({
+      status: responseSuccess,
+      message: "succesfully get project",
+      data: { project },
     });
   } catch (error) {
     handleError(res, error);

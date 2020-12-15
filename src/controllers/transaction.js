@@ -1,5 +1,5 @@
 // import model
-const { Post, User, Transaction } = require("../../models");
+const { Project, User, Transaction, FileProject } = require("../../models");
 // import module
 const Joi = require("joi");
 
@@ -43,13 +43,6 @@ exports.addOffer = async (req, res) => {
             exclude: ["createdAt", "updatedAt", "password"],
           },
         },
-        {
-          model: User,
-          as: "seller",
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "password"],
-          },
-        },
       ],
     });
     res.send({
@@ -71,7 +64,7 @@ exports.getMyOrder = async (req, res) => {
     const order = await Transaction.findAll({
       where: { orderBy: userId },
       attributes: {
-        exclude: ["createdAt", "updatedAt", "orderBy", "orderTo", "status"],
+        exclude: ["createdAt", "updatedAt", "orderBy", "orderTo"],
       },
       include: [
         {
@@ -86,6 +79,25 @@ exports.getMyOrder = async (req, res) => {
           as: "seller",
           attributes: {
             exclude: ["createdAt", "updatedAt", "password"],
+          },
+        },
+        {
+          model: User,
+          as: "seller",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "password"],
+          },
+        },
+        {
+          model: Project,
+          as: "project",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+          include: {
+            model: FileProject,
+            as: "file",
+            attributes: { exclude: ["createdAt", "updatedAt"] },
           },
         },
       ],
@@ -112,7 +124,7 @@ exports.getMyOffer = async (req, res) => {
     const offer = await Transaction.findAll({
       where: { orderTo: userId },
       attributes: {
-        exclude: ["createdAt", "updatedAt", "orderBy", "orderTo", "status"],
+        exclude: ["createdAt", "updatedAt", "orderBy", "orderTo"],
       },
       include: [
         {
@@ -138,6 +150,54 @@ exports.getMyOffer = async (req, res) => {
       status: responseSuccess,
       message: "succesfully get your oder",
       data: { offer },
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+// @desc Edit Transaction
+// @route Patch api/v1/transaction/:id
+// @access USER
+exports.editTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+    const scema = Joi.object({
+      status: Joi.string().required(),
+    });
+    handleValidation(scema, body, res);
+    const transaction = await Transaction.findOne({ where: { id } });
+    if (!transaction) {
+      return handleNotFound(res, "transaction not found");
+    }
+    await Transaction.update(body, { where: { id } });
+    const transactionAfterUpdate = await Transaction.findOne({
+      where: { id },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "orderBy", "orderTo"],
+      },
+      include: [
+        {
+          model: User,
+          as: "client",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "password"],
+          },
+        },
+        {
+          model: User,
+          as: "seller",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "password"],
+          },
+        },
+      ],
+    });
+    res.send({
+      status: responseSuccess,
+      message: "succesfully update transaction",
+      data: { transaction: transactionAfterUpdate },
     });
   } catch (error) {
     handleError(res, error);

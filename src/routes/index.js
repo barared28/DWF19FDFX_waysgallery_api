@@ -21,8 +21,9 @@ const {
   addOffer,
   getMyOrder,
   getMyOffer,
+  editTransaction,
 } = require("../controllers/transaction");
-const { sendProject } = require("../controllers/project");
+const { sendProject, addFileProject, getProjectById } = require("../controllers/project");
 
 // auth router
 router.post("/login", login);
@@ -45,8 +46,11 @@ router.post("/post", auth, uploadImageMultiple("photos"), addPost);
 router.post("/hired", auth, addOffer);
 router.get("/my-order", auth, getMyOrder);
 router.get("/my-offer", auth, getMyOffer);
+router.patch("/transaction/:id", auth, editTransaction);
 
 // project router
 router.post("/send-project/:id", auth, sendProject);
+router.get("/project/:id", auth, getProjectById);
+router.post("/add-file/:id", auth,uploadImageMultiple("fileName"), addFileProject);
 
 module.exports = router;
