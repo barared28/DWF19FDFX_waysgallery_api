@@ -10,7 +10,7 @@ const {
 
 // import controllers
 const { login, register } = require("../controllers/auth");
-const { getPosts, addPost } = require("../controllers/post");
+const { getPosts, addPost, getPostById } = require("../controllers/post");
 const {
   getUserProfile,
   editProfile,
@@ -38,6 +38,7 @@ router.post("/upload-arts", auth, uploadImageMultiple("image"), addArt);
 
 // post router
 router.get("/posts", getPosts);
+router.get("/post/:id", getPostById);
 router.post("/post", auth, uploadImageMultiple("photos"), addPost);
 
 // transaction router

@@ -18,13 +18,13 @@ exports.getPosts = async (req, res) => {
   try {
     const posts = await Post.findAll({
       attributes: {
-        exclude: ["createdAt", "updatedAt", "userId"],
+        exclude: ["createdAt", "updatedAt", "userId", "createdBy"],
       },
       order: [["createdAt", "DESC"]],
       include: [
         {
           model: User,
-          //   as: "createdBy",
+          as: "createdby",
           attributes: {
             exclude: ["createdAt", "updatedAt", "password"],
           },
@@ -92,7 +92,7 @@ exports.addPost = async (req, res) => {
       },
       include: {
         model: Photo,
-        as : "photo",
+        as: "photo",
         attributes: {
           exclude: ["createdAt", "updatedAt", "postId"],
         },
@@ -103,6 +103,47 @@ exports.addPost = async (req, res) => {
       status: responseSuccess,
       message: "post succesfully added",
       data: { post: postAfterAdded },
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+// @desc Get Post by Id
+// @route GET api/v1/post/:id
+// @access USER
+exports.getPostById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const post = await Post.findOne({
+      where: { id },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "createdBy"],
+      },
+      include: [
+        {
+          model: User,
+          as: "createdby",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "password"],
+          },
+        },
+        {
+          model: Photo,
+          as: "photo",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "postId"],
+          },
+        },
+      ],
+    });
+    if (!post) {
+      return handleNotFound(res, "post is not found");
+    }
+    res.send({
+      status: responseSuccess,
+      message: "succesfully get post",
+      data: { post },
     });
   } catch (error) {
     handleError(res, error);

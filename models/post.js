@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Post.belongsTo(models.User, {
-        // as: "createdBy",
+        as: "createdby",
         foreignKey: "createdBy",
       });
       Post.hasMany(models.Photo , {
