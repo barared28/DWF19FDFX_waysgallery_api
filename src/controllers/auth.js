@@ -1,5 +1,5 @@
 // import model
-const { User } = require("../../models");
+const { User, Profile } = require("../../models");
 // import module
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
@@ -39,11 +39,10 @@ exports.register = async (req, res) => {
       email,
       password: hashedPassword,
     });
-    // await Profile.create({
-    //   userId: user.id,
-    //   photo: "default",
-    //   isAdmin: false,
-    // });
+    await Profile.create({
+      userId: user.id,
+      avatar: "default",
+    });
 
     const privateKey = process.env.JWT_PRIVATE_KEY;
     const token = jwt.sign({ id: user.id }, privateKey);
