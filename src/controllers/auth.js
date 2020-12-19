@@ -42,6 +42,7 @@ exports.register = async (req, res) => {
     await Profile.create({
       userId: user.id,
       avatar: "default",
+      greeting: "Hey I am New",
     });
 
     const privateKey = process.env.JWT_PRIVATE_KEY;

@@ -161,6 +161,38 @@ exports.getUserProfileById = async (req, res) => {
   }
 };
 
+// @desc Get Profile Just for Check
+// @route GET api/v1/verify
+// @access USER
+exports.getReload = async (req, res) => {
+  try {
+    const { id } = req.user;
+    const user = await User.findOne({
+      where: { id },
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "password", "email"],
+      },
+      include: {
+        model: Profile,
+        as: "profile",
+        attributes: {
+          exclude: ["createdAt", "updatedAt", "userId", "id"],
+        },
+      },
+    });
+    if (!user) {
+      handleNotFound(res, "user profile not found");
+    }
+    res.send({
+      status: responseSuccess,
+      message: "succesfully get profile",
+      data: user,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
 // // @desc Get Posts
 // // @route GET api/v1/posts
 // // @access USER

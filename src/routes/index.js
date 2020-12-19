@@ -15,6 +15,7 @@ const {
   getUserProfile,
   editProfile,
   getUserProfileById,
+  getReload,
 } = require("../controllers/profile");
 const { addArt } = require("../controllers/art");
 const {
@@ -23,7 +24,11 @@ const {
   getMyOffer,
   editTransaction,
 } = require("../controllers/transaction");
-const { sendProject, addFileProject, getProjectById } = require("../controllers/project");
+const {
+  sendProject,
+  addFileProject,
+  getProjectById,
+} = require("../controllers/project");
 
 // auth router
 router.post("/login", login);
@@ -33,6 +38,7 @@ router.post("/register", register);
 router.get("/user", auth, getUserProfile);
 router.get("/user/:id", auth, getUserProfileById);
 router.patch("/user", auth, uploadImageSingle("avatar"), editProfile);
+router.get("/verify", auth, getReload);
 
 // art router
 router.post("/upload-arts", auth, uploadImageMultiple("image"), addArt);
@@ -51,6 +57,11 @@ router.patch("/transaction/:id", auth, editTransaction);
 // project router
 router.post("/send-project/:id", auth, sendProject);
 router.get("/project/:id", auth, getProjectById);
-router.post("/add-file/:id", auth,uploadImageMultiple("fileName"), addFileProject);
+router.post(
+  "/add-file/:id",
+  auth,
+  uploadImageMultiple("fileName"),
+  addFileProject
+);
 
 module.exports = router;

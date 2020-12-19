@@ -1,5 +1,5 @@
 // import model
-const { Post, User, Photo } = require("../../models");
+const { Post, User, Photo, Profile } = require("../../models");
 // import module
 const Joi = require("joi");
 
@@ -126,6 +126,13 @@ exports.getPostById = async (req, res) => {
           as: "createdby",
           attributes: {
             exclude: ["createdAt", "updatedAt", "password"],
+          },
+          include: {
+            model: Profile,
+            as: "profile",
+            attributes: {
+              exclude: ["createdAt", "updatedAt", "userId", "id", "greeting"],
+            },
           },
         },
         {
