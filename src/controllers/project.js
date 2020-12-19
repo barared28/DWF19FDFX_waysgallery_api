@@ -18,6 +18,7 @@ exports.sendProject = async (req, res) => {
   try {
     const { id: transactionId } = req.params;
     const { id: userId } = req.user;
+    const files = req.files;
     const transaction = await Transaction.findOne({
       where: { id: transactionId },
     });
@@ -36,43 +37,20 @@ exports.sendProject = async (req, res) => {
       description: body.description,
       transactionId,
     });
-    res.send({
-      status: responseSuccess,
-      message: "succesfully send project",
-      data: {
-        project: {
-          id: project.id,
-          description: project.description,
-          transactionId,
-        },
-      },
-    });
-  } catch (error) {
-    handleError(res, error);
-  }
-};
-
-// @desc Add File
-// @route Post api/v1/add-file/:id
-// @access USER
-exports.addFileProject = async (req, res) => {
-  try {
-    const { id: projectId } = req.params;
-    const file = req.files;
-    const project = await Project.findOne({ where: { id: projectId } });
-    if (!project) {
-      return handleNotFound(res, "project is not found");
-    }
     await Promise.all(
-      file.map(async (image) => {
+      files.map(async (image) => {
         await FileProject.create({
-          projectId,
+          projectId: project.id,
           fileName: image.path,
         });
       })
     );
+    await Transaction.update(
+      { status: "Project Finish" },
+      { where: { id: transactionId } }
+    );
     const projectAfterAdd = await Project.findOne({
-      where: { id: projectId },
+      where: { id: project.id },
       attributes: { exclude: ["createdAt", "updatedAt"] },
       include: {
         model: FileProject,
@@ -80,20 +58,17 @@ exports.addFileProject = async (req, res) => {
         attributes: { exclude: ["createdAt", "updatedAt"] },
       },
     });
-
     res.send({
       status: responseSuccess,
-      message: "succesfully add project file",
-      data: { project: projectAfterAdd },
+      message: "succesfully send project",
+      data: {
+        project: projectAfterAdd,
+      },
     });
-
-    // FileProject
   } catch (error) {
     handleError(res, error);
   }
 };
-
-// project
 
 // @desc Get Project By Id
 // @route GET api/v1/project/:id

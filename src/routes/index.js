@@ -55,13 +55,12 @@ router.get("/my-offer", auth, getMyOffer);
 router.patch("/transaction/:id", auth, editTransaction);
 
 // project router
-router.post("/send-project/:id", auth, sendProject);
-router.get("/project/:id", auth, getProjectById);
 router.post(
-  "/add-file/:id",
+  "/send-project/:id",
   auth,
-  uploadImageMultiple("fileName"),
-  addFileProject
+  uploadImageMultiple("files"),
+  sendProject
 );
+router.get("/project/:id", auth, getProjectById);
 
 module.exports = router;
