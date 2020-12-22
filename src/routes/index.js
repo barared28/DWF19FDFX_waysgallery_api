@@ -10,7 +10,7 @@ const {
 
 // import controllers
 const { login, register } = require("../controllers/auth");
-const { getPosts, addPost, getPostById } = require("../controllers/post");
+const { getPosts, addPost, getPostById, getPostsCustom } = require("../controllers/post");
 const {
   getUserProfile,
   editProfile,
@@ -24,11 +24,8 @@ const {
   getMyOffer,
   editTransaction,
 } = require("../controllers/transaction");
-const {
-  sendProject,
-  addFileProject,
-  getProjectById,
-} = require("../controllers/project");
+const { sendProject, getProjectById } = require("../controllers/project");
+const { editFollow , getFollow} = require("../controllers/follow");
 
 // auth router
 router.post("/login", login);
@@ -45,7 +42,8 @@ router.post("/upload-arts", auth, uploadImageMultiple("image"), addArt);
 
 // post router
 router.get("/posts", getPosts);
-router.get("/post/:id", getPostById);
+router.get("/posts/:limit/:filter/:search", getPostsCustom);
+router.get("/post/:id",auth, getPostById);
 router.post("/post", auth, uploadImageMultiple("photos"), addPost);
 
 // transaction router
@@ -62,5 +60,9 @@ router.post(
   sendProject
 );
 router.get("/project/:id", auth, getProjectById);
+
+// follow router
+router.patch("/follow/:id", auth, editFollow);
+router.get("/follow/:id", auth, getFollow);
 
 module.exports = router;

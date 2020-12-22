@@ -51,6 +51,48 @@ exports.getPosts = async (req, res) => {
   }
 };
 
+// @desc Get Posts
+// @route GET api/v1/posts
+// @access USER
+exports.getPostsCustom = async (req, res) => {
+  try {
+    const { filter, search, limit } = req.params;
+    console.log(filter, search, limit);
+    const posts = await Post.findAll({
+      attributes: {
+        exclude: ["createdAt", "updatedAt", "userId", "createdBy"],
+      },
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: User,
+          as: "createdby",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "password"],
+          },
+        },
+        {
+          model: Photo,
+          as: "photo",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
+    });
+    if (posts.length === 0) {
+      return handleNotFound(res, "Post is empty");
+    }
+    res.send({
+      status: responseSuccess,
+      message: "succesfully get posts",
+      data: { posts },
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
 // @desc Add Post
 // @route POST api/v1/post
 // @access USER
@@ -80,7 +122,7 @@ exports.addPost = async (req, res) => {
       file.map(async (image) => {
         await Photo.create({
           postId,
-          image: image.path,
+          image: image.filename,
         });
       })
     );

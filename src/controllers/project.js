@@ -41,7 +41,7 @@ exports.sendProject = async (req, res) => {
       files.map(async (image) => {
         await FileProject.create({
           projectId: project.id,
-          fileName: image.path,
+          fileName: image.filename,
         });
       })
     );

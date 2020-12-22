@@ -28,6 +28,20 @@ module.exports = (sequelize, DataTypes) => {
         as: "seller",
         foreignKey: "orderTo",
       });
+      User.belongsToMany(models.User , {
+        through : {
+          model : "Follows"
+        },
+        foreignKey : "followerId",
+        as : "follower"
+      });
+      User.belongsToMany(models.User ,{
+        through : {
+          model : "Follows"
+        },
+        foreignKey : "followedId",
+        as : "followed"
+      })
     }
   }
   User.init(

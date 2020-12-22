@@ -21,8 +21,8 @@ exports.addArt = async (req, res) => {
     const art = [];
     await Promise.all(
       file.map(async (file) => {
-        art.push({ userId, image: file.path });
-        return await Art.create({ userId, image: file.path });
+        art.push({ userId, image: file.filename });
+        return await Art.create({ userId, image: file.filename });
       })
     );
     res.send({

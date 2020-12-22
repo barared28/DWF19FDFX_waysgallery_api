@@ -32,6 +32,7 @@ exports.getUserProfile = async (req, res) => {
         {
           model: Post,
           as: "post",
+          order: [["createdAt", "DESC"]],
           attributes: {
             exclude: ["createdAt", "updatedAt", "userId", "createdBy"],
           },
@@ -72,7 +73,7 @@ exports.editProfile = async (req, res) => {
   try {
     const { body } = req;
     const { id: userId } = req.user;
-    body.avatar = req.file.path;
+    body.avatar = req.file.filename;
     const scema = Joi.object({
       greeting: Joi.string().min(4),
       fullName: Joi.string().min(4),
@@ -106,11 +107,12 @@ exports.editProfile = async (req, res) => {
   }
 };
 
-// @desc Get Posts
-// @route GET api/v1/posts
+// @desc Get User Profile By Id
+// @route GET api/v1/user/:id
 // @access USER
 exports.getUserProfileById = async (req, res) => {
   try {
+    const { id: followerId } = req.user;
     const { id } = req.params;
     const user = await User.findOne({
       where: { id },
@@ -128,6 +130,7 @@ exports.getUserProfileById = async (req, res) => {
         {
           model: Post,
           as: "post",
+          order: [["createdAt", "DESC"]],
           attributes: {
             exclude: ["createdAt", "updatedAt", "userId", "createdBy"],
           },
@@ -146,6 +149,14 @@ exports.getUserProfileById = async (req, res) => {
             exclude: ["createdAt", "updatedAt", "userId"],
           },
         },
+        // {
+        //   model: User,
+        //   as: "followed",
+        //   where: { id: followerId },
+        //   attributes: {
+        //     exclude: ["createdAt", "updatedAt", "email", "password", "fullName"],
+        //   },
+        // },
       ],
     });
     if (!user) {
