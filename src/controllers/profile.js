@@ -73,7 +73,7 @@ exports.editProfile = async (req, res) => {
   try {
     const { body } = req;
     const { id: userId } = req.user;
-    body.avatar = req.file.filename;
+    body.avatar = req.files[0].secure_url;
     const scema = Joi.object({
       greeting: Joi.string().min(4),
       fullName: Joi.string().min(4),
@@ -83,9 +83,6 @@ exports.editProfile = async (req, res) => {
     const profile = await Profile.findOne({ where: { userId } });
     if (!profile) {
       handleNotFound(res, "profile not found");
-    }
-    if (body.fullName) {
-      await User.update({ fullName: body.fullName }, { where: { id: userId } });
     }
     await Profile.update(body, { where: { userId } });
     const profileAfterUpdate = await User.findOne({

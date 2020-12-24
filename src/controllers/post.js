@@ -115,18 +115,18 @@ exports.getPostsByFollowed = async (req, res) => {
   }
 };
 
-// @desc Add Post
+// @desc Add Post Clodinary
 // @route POST api/v1/post
 // @access USER
 exports.addPost = async (req, res) => {
   try {
     const { body } = req;
-    const file = req.files;
+    const images = req.files;
     const { id: createdBy } = req.user;
 
     const scema = Joi.object({
       title: Joi.string().min(4).required(),
-      description: Joi.string().min(10).required(),
+      description: Joi.string().min(8).required(),
     });
 
     handleValidation(scema, body, res);
@@ -141,10 +141,12 @@ exports.addPost = async (req, res) => {
     const { id: postId } = post;
 
     await Promise.all(
-      file.map(async (image) => {
+      images.map(async (image) => {
         await Photo.create({
           postId,
-          image: image.filename,
+          image: image.secure_url,
+          width: image.width,
+          height: image.height,
         });
       })
     );
@@ -168,9 +170,7 @@ exports.addPost = async (req, res) => {
       message: "post succesfully added",
       data: { post: postAfterAdded },
     });
-  } catch (error) {
-    handleError(res, error);
-  }
+  } catch (error) {}
 };
 
 // @desc Get Post by Id
