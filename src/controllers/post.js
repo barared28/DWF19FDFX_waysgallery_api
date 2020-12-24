@@ -10,6 +10,7 @@ const {
   handleNotFound,
   handleValidation,
 } = require("../config/callback");
+const { post } = require("../routes");
 
 // @desc Get Posts
 // @route GET api/v1/posts
@@ -52,33 +53,53 @@ exports.getPosts = async (req, res) => {
 };
 
 // @desc Get Posts
-// @route GET api/v1/posts
+// @route GET api/v1/posts/followed
 // @access USER
-exports.getPostsCustom = async (req, res) => {
+exports.getPostsByFollowed = async (req, res) => {
   try {
-    const { filter, search, limit } = req.params;
-    console.log(filter, search, limit);
-    const posts = await Post.findAll({
-      attributes: {
-        exclude: ["createdAt", "updatedAt", "userId", "createdBy"],
-      },
-      order: [["createdAt", "DESC"]],
-      include: [
-        {
-          model: User,
-          as: "createdby",
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "password"],
-          },
-        },
-        {
-          model: Photo,
-          as: "photo",
+    const listFollowed = req.followed;
+    if (!listFollowed || listFollowed.length === 0) {
+      res.send({
+        status: responseSuccess,
+        message: "youre not followed anyone",
+        data: {},
+      });
+    }
+    const listPost = await Promise.all(
+      listFollowed.map(async ({ id }) => {
+        return await Post.findAndCountAll({
+          where: { createdBy: id },
           attributes: {
             exclude: ["createdAt", "updatedAt"],
           },
-        },
-      ],
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: User,
+              as: "createdby",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "password"],
+              },
+            },
+            {
+              model: Photo,
+              as: "photo",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+          ],
+        });
+      })
+    );
+    const posts = await new Promise((resolve, reject) => {
+      const newListPost = listPost.map((post) => post.rows);
+      const postsArr = [];
+      newListPost.map((list) => list.map((post) => postsArr.push(post)));
+      resolve(postsArr);
+      setTimeout(() => {
+        reject();
+      }, 10000);
     });
     if (posts.length === 0) {
       return handleNotFound(res, "Post is empty");
@@ -87,6 +108,7 @@ exports.getPostsCustom = async (req, res) => {
       status: responseSuccess,
       message: "succesfully get posts",
       data: { posts },
+      follow: req.followed,
     });
   } catch (error) {
     handleError(res, error);

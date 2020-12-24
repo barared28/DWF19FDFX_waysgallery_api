@@ -7,10 +7,16 @@ const {
   uploadImageSingle,
   uploadImageMultiple,
 } = require("../middlewares/uploadImage");
+const findFollowed = require("../middlewares/findFollowed");
 
 // import controllers
 const { login, register } = require("../controllers/auth");
-const { getPosts, addPost, getPostById, getPostsCustom } = require("../controllers/post");
+const {
+  getPosts,
+  addPost,
+  getPostById,
+  getPostsByFollowed,
+} = require("../controllers/post");
 const {
   getUserProfile,
   editProfile,
@@ -25,7 +31,7 @@ const {
   editTransaction,
 } = require("../controllers/transaction");
 const { sendProject, getProjectById } = require("../controllers/project");
-const { editFollow , getFollow} = require("../controllers/follow");
+const { editFollow, getFollow } = require("../controllers/follow");
 
 // auth router
 router.post("/login", login);
@@ -42,8 +48,8 @@ router.post("/upload-arts", auth, uploadImageMultiple("image"), addArt);
 
 // post router
 router.get("/posts", getPosts);
-router.get("/posts/:limit/:filter/:search", getPostsCustom);
-router.get("/post/:id",auth, getPostById);
+router.get("/posts/followed", auth, findFollowed, getPostsByFollowed);
+router.get("/post/:id", auth, getPostById);
 router.post("/post", auth, uploadImageMultiple("photos"), addPost);
 
 // transaction router
