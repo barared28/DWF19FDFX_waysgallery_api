@@ -1,10 +1,11 @@
 const formidable = require("formidable");
 const cloudinary = require("cloudinary").v2;
+require("dotenv").config();
 
 cloudinary.config({
-  cloud_name: "duoxmfzbk",
-  api_key: "527366473394574",
-  api_secret: "C4denHXj2129fh5d61Px4cMCVHE",
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 exports.uploadImage = async (req, res, next) => {
