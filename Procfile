@@ -1,3 +1,3 @@
-release: npx sequelize db:migrate;
+release: sequelize db:migrate;
 
 web:node index.js
