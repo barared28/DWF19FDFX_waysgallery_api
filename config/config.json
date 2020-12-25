@@ -15,7 +15,7 @@
   },
   "production": {
     "use_env_variable": "DATABASE_URL",
-    "dialect": "postgress",
-    "protocol": "postgress"
+    "dialect": "postgres",
+    "protocol": "postgres"
   }
 }
